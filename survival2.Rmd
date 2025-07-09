@@ -1,0 +1,124 @@
+---
+title: "CS Cox"
+author: "Séhomi"
+date: "`r Sys.Date()`"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+
+```{r}
+library(tidyverse)
+library(sjPlot)
+library(sjlabelled)
+library(expss)
+library(conflicted)
+library(survival)
+library(survminer)
+library(flexsurv)
+library(viridis)
+library(openxlsx2)
+
+conflicts_prefer(dplyr::filter)
+```
+
+
+```{r}
+
+data<- read.csv2("data.csv")
+
+#Structure minimale de la table:
+#id=identifiant patient
+#Delai= délai entre début de suivi et diagnostic de la maladie (num)
+#Event= diagnostic de la maladie (facteur 0/1)
+#Sexe=variable d'ajustement
+
+```
+
+## Survie de la population d'analyse
+
+```{r  fig.height=10, fig.width=16}
+surv_object = Surv(time = data$delai, event = data$event)
+
+fit <- survfit(surv_object ~ 1)
+
+summary(fit)$table
+```
+
+### Courbe de survie (toute la population)
+
+```{r  fig.height=10, fig.width=16}
+ggsurvplot(fit, data, 
+           pval=FALSE, 
+           title="Mode d'entrée dans la maladie", 
+           #legend.labs=c("Gonadique", "Rénale"),
+           censor=TRUE, 
+           cens.col="black", 
+           risk.table.col = "strata",
+            surv.median.line = "hv",
+           fontsize=4, 
+           conf.int = FALSE,
+           risk.table = TRUE,
+           risk.table.fontsize=6,
+           xlab = "Time in days",
+           font.x = c(16, "bold.italic", "red"))
+```
+
+## Modèle de Survie de la population d'analyse en fonction du sexe 
+
+```{r  fig.height=10, fig.width=16}
+fit2 <- survfit( Surv(delai, event) ~ SEXE, data = data )
+
+summary(fit2)$table
+```
+
+### Courbes de survie par sexe (Kaplan-Meier)
+
+```{r  fig.height=10, fig.width=16}
+ggsurvplot(fit2, data, 
+           pval=FALSE, 
+           title="Survie en fonction du caryotype", 
+           legend.labs=c("XX", "XY"),
+           censor=TRUE, 
+           cens.col="black", 
+           risk.table.col = "strata",
+            surv.median.line = "hv",
+           fontsize=6,
+           conf.int = FALSE,
+           risk.table = TRUE,
+           risk.table.fontsize=6,
+           xlab = "Time in days",
+           font.x = c(16, "bold.italic", "red"))
+```
+
+### Log Rank (Comparaison des survies en fontion du sexe)
+
+```{r  fig.height=10, fig.width=16}
+surv_diff2 <- survdiff(Surv(delai, event) ~ SEXE, data = data)
+
+surv_diff2
+
+```
+
+
+## Modèle de Cox: Survie ajustée sur le sexe 
+
+```{r}
+mod1 <- coxph(surv_object ~ SEXE, data = data)
+
+summary(mod1)
+```
+
+### Vérification de l'hypothèse des risques proportionnels
+
+```{r}
+plot(cox.zph(mod1))
+```
+
+
+
