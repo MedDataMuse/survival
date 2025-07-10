@@ -2,6 +2,6 @@ L'analyse de survie est une branche des statistiques qui étudie le temps écoul
 
 C'est un outil essentiel pour comprendre les phénomènes dépendants du temps et l'influence de divers facteurs sur ces processus.
 
-Voici un jeu de données simulé contenant toutes les informations nécessaires pour commencer à explorer ces concepts !
+Voici un jeu de données simulé  et un script R contenant toutes les informations nécessaires pour commencer à explorer ces concepts !
 
 [description complète ici](https://meddatamuse.github.io/survival/)
