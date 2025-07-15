@@ -1,6 +1,6 @@
 ---
 title: "CS Cox"
-author: "Séhomi"
+author: "me"
 date: "`r Sys.Date()`"
 output:
   word_document: default
